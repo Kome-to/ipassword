@@ -1,8 +1,8 @@
-# Dan Education API
+# IPassword API
 
 ## Overview
 
-Backend for Dan Education
+Backend for IPassword
 
 ## Install dependencies
 
@@ -111,7 +111,7 @@ Start Service
 
 ## Stay in touch
 
-- Author - Dan Education
+- Author - IPassword
 
 ## License
 

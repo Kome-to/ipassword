@@ -7,11 +7,14 @@ import { UserAttributes } from '../interfaces/User';
 class UserModel extends Model<UserAttributes> {
   declare id: string;
   declare email: string;
-  declare username: string;
-  declare password: string;
-  declare role: Role;
-  declare isVerified: boolean;
-  declare token: string;
+  declare phoneNumber: string;
+  declare firstName: string;
+  declare lastName: string;
+  declare masterPasswordHash: string;
+  declare protectedSymmetricKey: string;
+  declare protectedRsaPrivateKey: string;
+  declare publicRsaKey: string;
+  declare premiumStatus: string;
   declare createdAt?: Date;
   declare updatedAt?: Date;
 }
@@ -27,28 +30,42 @@ UserModel.init(
       unique: true,
       allowNull: false,
     },
-
-    username: {
-      type: DataTypes.STRING(50),
-      unique: true,
+    phoneNumber: {
+      type: DataTypes.STRING(14),
+      field: 'phone_number',
     },
-    password: {
+    firstName: {
       type: DataTypes.STRING(200),
+      field: 'first_name',
+    },
+    lastName: {
+      type: DataTypes.STRING(200),
+      field: 'last_name',
+    },
+    masterPasswordHash: {
+      type: DataTypes.STRING(700),
       allowNull: false,
     },
-    role: {
-      type: DataTypes.ENUM('admin', 'member'),
-      defaultValue: 'member',
+    protectedSymmetricKey: {
+      type: DataTypes.STRING(700),
       allowNull: false,
+      field: 'protected_symmetric_key',
     },
-    isVerified: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      field: 'is_verified',
+    protectedRsaPrivateKey: {
+      type: DataTypes.STRING(700),
       allowNull: false,
+      field: 'protected_rsa_private_key',
     },
-    token: {
-      type: DataTypes.STRING,
+    publicRsaKey: {
+      type: DataTypes.STRING(700),
+      allowNull: false,
+      field: 'public_rsa_key',
+    },
+    premiumStatus: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: '',
+      field: 'premium_status',
     },
   },
   {

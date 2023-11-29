@@ -12,7 +12,7 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
-    'prettier/prettier': ['error', { usePrettierrc: true }],
+    'prettier/prettier': ['error', { usePrettierrc: true, endOfLine: 'auto' }],
     'lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
     'import/extensions': 'off',
     'import/no-unresolved': 'off',

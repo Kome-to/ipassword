@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   postgres:
-    container_name: dan-education-postgres
+    container_name: i-password-postgres
     image: 'postgres'
     env_file:
       - database.env

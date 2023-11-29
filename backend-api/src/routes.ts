@@ -13,7 +13,7 @@ dayjs.extend(utc);
 const router = express.Router();
 
 router.get('/api-check', (_req, res) => {
-  res.send('Dan Education API OK !!');
+  res.send('API OK !!');
 });
 
 router.use(

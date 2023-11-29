@@ -9,12 +9,11 @@ class UserRepository {
     });
   }
 
-  async getByEmailOrUsername(email: string, username: string, safe = true) {
+  async getByEmailOrUsername(email: string) {
     return UserModel.findOne({
       where: {
-        [Op.or]: [{ email }, { username }],
+        [Op.or]: [{ email }],
       },
-      attributes: { exclude: safe ? ['password', 'token'] : [] },
     });
   }
 
@@ -25,10 +24,9 @@ class UserRepository {
     });
   }
 
-  async getSuggestion({ key }) {
-    return UserModel.findAll({
-      where: { [Op.or]: [{ email: { [Op.iLike]: `${key}%` }, username: { [Op.iLike]: `${key}%` } }], isVerified: true },
-      attributes: { exclude: ['password', 'token'] },
+  async getByMasterPassword(password: string) {
+    return UserModel.findOne({
+      where: { masterPasswordHash: password },
     });
   }
 }

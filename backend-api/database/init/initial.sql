@@ -1,3 +1,3 @@
-SELECT 'CREATE DATABASE danedu'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'danedu')\gexec
-GRANT ALL PRIVILEGES ON DATABASE danedu TO postgres;
+SELECT 'CREATE DATABASE ipassword'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'ipassword')\gexec
+GRANT ALL PRIVILEGES ON DATABASE ipassword TO postgres;

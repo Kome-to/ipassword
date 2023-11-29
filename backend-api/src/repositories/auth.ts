@@ -3,15 +3,13 @@ import BadRequestError from '../common/errors/types/BadRequestError';
 import UserRepository from './user';
 
 class AuthRepository {
-  async checkAuthentication(email: string, password: string): Promise<any | undefined> {
-    const user = await UserRepository.getByEmail(email, false);
+  async checkAuthentication(password: string): Promise<any | undefined> {
+    const user = await UserRepository.getByMasterPassword(password);
 
-    if (!user || (password && !bcrypt.comparePassword(password, user.password))) {
+    if (!user) {
       return undefined;
     }
-    if (!user.isVerified) {
-      throw new BadRequestError('User is not verified');
-    }
+
     return user;
   }
 }

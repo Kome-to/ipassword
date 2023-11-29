@@ -21,18 +21,18 @@ const poolConfig = {
 
 const database = {
   username: process.env.DB_USERNAME || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'danedu',
+  password: process.env.DB_PASSWORD || 'ipassword',
+  database: process.env.DB_NAME || 'ipassword',
   host: process.env.DB_HOST || 'localhost',
   pool: process.env.enableConnectionPool ? poolConfig : undefined,
   dialect: 'postgres',
   logging: process.env.NODE_ENV === Environment.Development,
-  port: parseInt(process.env.DB_PORT),
+  port: parseInt(process.env.DB_PORT) || 5437,
   timezone: '+00:00',
 };
 
 export default {
-  appName: process.env.APP_NAME || 'DanEdu',
+  appName: process.env.APP_NAME || 'ipassword',
   /**
    * Application environment mode either development or production or test
    * @type {String}

@@ -21,7 +21,7 @@ function responseData(res: Response, httpCode: number, success = true, message =
 
 function responseError(
   res: Response,
-  code = httpStatus.INTERNAL_SERVER_ERROR,
+  code: number = httpStatus.INTERNAL_SERVER_ERROR,
   message: string = messages.generalMessage.error,
   data = null
 ): Response<unknown, Record<string, unknown>> {

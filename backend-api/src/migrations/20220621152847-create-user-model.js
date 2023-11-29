@@ -17,28 +17,43 @@ module.exports = {
         unique: true,
         allowNull: false,
       },
-      username: {
-        type: Sequelize.STRING(50),
-        unique: true,
-        allowNull: false,
+      phoneNumber: {
+        type: Sequelize.STRING(14),
+        field: 'phone_number',
       },
-      password: {
+      firstName: {
         type: Sequelize.STRING(200),
-        allowNull: false,
+        field: 'first_name',
       },
-      role: {
-        type: Sequelize.ENUM('admin', 'member'),
-        defaultValue: 'member',
-        allowNull: false,
+      lastName: {
+        type: Sequelize.STRING(200),
+        field: 'last_name',
       },
-      isVerified: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-        field: 'is_verified',
+      masterPasswordHash: {
+        type: Sequelize.STRING(700),
         allowNull: false,
+        field: 'master_password_hash',
       },
-      token: {
-        type: Sequelize.STRING,
+      protectedSymmetricKey: {
+        type: Sequelize.STRING(700),
+        allowNull: false,
+        field: 'protected_symmetric_key',
+      },
+      protectedRsaPrivateKey: {
+        type: Sequelize.STRING(700),
+        allowNull: false,
+        field: 'protected_rsa_private_key',
+      },
+      publicRsaKey: {
+        type: Sequelize.STRING(700),
+        allowNull: false,
+        field: 'public_rsa_key',
+      },
+      premiumStatus: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
+        defaultValue: '',
+        field: 'premium_status',
       },
       createdAt: {
         allowNull: false,

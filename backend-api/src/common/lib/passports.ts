@@ -1,9 +1,10 @@
-import passportJWT from 'passport-jwt';
 import * as jwt from 'jsonwebtoken';
 import { PassportStatic } from 'passport';
+import passportJWT from 'passport-jwt';
 import env from '../../../config/env';
-import UserRepository from '../../repositories/user';
 import { UserAttributes } from '../../interfaces/User';
+import UserModel from '../../models/User';
+import UserRepository from '../../repositories/user';
 import ForbiddenError from '../errors/types/ForbiddenError';
 
 export interface JWTPayload {
@@ -23,7 +24,7 @@ export function passportConfiguration(passport: PassportStatic) {
   };
 
   passport.use(
-    new JwtStrategy(opts, async (jwtPayload, cb) => {
+    new JwtStrategy(opts, async (jwtPayload, cb: any) => {
       const user = await UserRepository.getById(jwtPayload.id);
 
       if (user) {
@@ -36,7 +37,7 @@ export function passportConfiguration(passport: PassportStatic) {
 }
 
 export function generateToken(user: UserAttributes) {
-  return jwt.sign({ id: user.id, email: user.email, role: user.role }, env.jwtSecret, {
+  return jwt.sign({ id: user.id, email: user.email }, env.jwtSecret, {
     expiresIn: env.jwtExpiresIn,
   });
 }
