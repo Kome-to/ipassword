@@ -22,12 +22,11 @@ import {
 } from '@services/user/actions';
 import {
   selectCards,
-  selectCurrentUser,
   selectFilter,
   selectNotes,
   selectPasswords,
 } from '@services/user/selector';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
 import Toast from 'react-native-root-toast';
 import {useDispatch, useSelector} from 'react-redux';
@@ -39,28 +38,37 @@ interface HomeProps {
   navigation: NavigationProps;
 }
 
+export const filterList = [
+  {key: 'all', name: 'Tất cả', icon: <AllIcon />},
+  {key: 'password', name: 'Mật khẩu', icon: <PasswordIcon />},
+  {key: 'note', name: 'Ghi chú', icon: <NoteIcon />},
+  {key: 'card', name: 'Thẻ', icon: <CardIcon />},
+];
+
 export const Home = ({navigation}: HomeProps) => {
   const filter = useSelector(selectFilter);
   const scrollRef = useRef<any>();
-  const currentUser = useSelector(selectCurrentUser);
   const dispatch = useDispatch();
   const passwords = useSelector(selectPasswords);
   const notes = useSelector(selectNotes);
   const cards = useSelector(selectCards);
   const {showActionSheetWithOptions} = useActionSheet();
+  const [searchValue, setSearchValue] = useState('');
 
-  const onPress = () => {
-    const options = [
-      'Mở trong trình duyệt',
-      'Xem',
-      'Delete',
-      'Sao chép tên tài khoản',
-      'Sao chép mật khẩu',
-      'Hiển thị mật khẩu',
-      'Chỉnh sửa',
-      'Hủy',
-      'Xóa',
-    ];
+  const onPress = (data, type) => {
+    const options =
+      type === 'PASSWORD'
+        ? [
+            'Mở trong trình duyệt',
+            'Xem',
+            'Sao chép tên tài khoản',
+            'Sao chép mật khẩu',
+            'Hiển thị mật khẩu',
+            'Chỉnh sửa',
+            'Hủy',
+            'Xóa',
+          ]
+        : ['Xem', 'Chỉnh sửa', 'Hủy', 'Xóa'];
     const destructiveButtonIndex = options.length - 1;
     const cancelButtonIndex = options.length - 2;
 
@@ -69,6 +77,8 @@ export const Home = ({navigation}: HomeProps) => {
         options,
         destructiveButtonIndex,
         cancelButtonIndex,
+        containerStyle: {backgroundColor: Colors.subPrimary},
+        tintColor: Colors.text,
       },
       (selectedIndex: number) => {
         switch (selectedIndex) {
@@ -84,12 +94,6 @@ export const Home = ({navigation}: HomeProps) => {
     );
   };
 
-  const filterList = [
-    {key: 'all', name: 'Tất cả', icon: <AllIcon />},
-    {key: 'password', name: 'Mật khẩu', icon: <PasswordIcon />},
-    {key: 'note', name: 'Ghi chú', icon: <NoteIcon />},
-    {key: 'card', name: 'Thẻ', icon: <CardIcon />},
-  ];
   useEffect(() => {
     if (scrollRef.current) {
       if (!filter) {
@@ -118,7 +122,13 @@ export const Home = ({navigation}: HomeProps) => {
 
   return (
     <View>
-      <Search onSearch={() => {}} placeholder={''} />
+      <Search
+        value={searchValue}
+        onSearch={(value) => {
+          setSearchValue(value);
+        }}
+        placeholder={''}
+      />
       <View>
         <ScrollView
           ref={scrollRef}
@@ -211,71 +221,79 @@ export const Home = ({navigation}: HomeProps) => {
               </View>
               <View style={{flex: 1}}>
                 {passwords &&
-                  passwords.map((item) => (
-                    <View key={item.id}>
-                      <Button
-                        onPress={() => {
-                          onPress();
-                        }}
-                        buttonContainerStyle={{
-                          flex: 1,
-                          borderBottomColor: Colors.gray,
-                          backgroundColor: 'transparent',
-                          borderBottomWidth: 0.3,
-                          borderStyle: 'solid',
-                          display: 'flex',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          gap: 20,
-                          marginVertical: 10,
-                          paddingBottom: 4,
-                        }}>
-                        <Image
-                          style={{
-                            width: 36,
-                            height: 36,
-                            objectFit: 'cover',
-                            borderRadius: 6,
-                          }}
-                          source={
-                            serviceNames.find(
-                              (service) => service.name === item.serviceName,
-                            )?.image || ImageUrls.LOCK
-                          }
-                        />
-                        <View style={{flex: 1}}>
-                          <Text
-                            style={{
-                              fontSize: FontSize.xLarge,
-                              color: Colors.text,
-                              fontWeight: '800',
-                            }}>
-                            {item.displayName}
-                          </Text>
-                          <Text
-                            style={{
-                              fontSize: FontSize.large,
-                              color: Colors.text,
-                            }}>
-                            {item.username}
-                          </Text>
-                        </View>
+                  passwords
+                    .filter(
+                      (item) =>
+                        !searchValue ||
+                        item.displayName
+                          .toLowerCase()
+                          .includes(searchValue.toLowerCase()),
+                    )
+                    .map((item) => (
+                      <View key={item.id}>
                         <Button
                           onPress={() => {
-                            Clipboard.setString(item.password);
-                            Toast.show(
-                              'Sao chép mật khẩu thành công',
-                              OptionToastSuccess,
-                            );
+                            onPress(item, 'PASSWORD');
                           }}
                           buttonContainerStyle={{
+                            flex: 1,
+                            borderBottomColor: Colors.gray,
                             backgroundColor: 'transparent',
+                            borderBottomWidth: 0.3,
+                            borderStyle: 'solid',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 20,
+                            marginVertical: 10,
+                            paddingBottom: 4,
                           }}>
-                          <CopyIcon />
+                          <Image
+                            style={{
+                              width: 36,
+                              height: 36,
+                              objectFit: 'cover',
+                              borderRadius: 6,
+                            }}
+                            source={
+                              serviceNames.find(
+                                (service) => service.name === item.serviceName,
+                              )?.image || ImageUrls.LOCK
+                            }
+                          />
+                          <View style={{flex: 1}}>
+                            <Text
+                              style={{
+                                fontSize: FontSize.xLarge,
+                                color: Colors.text,
+                                fontWeight: '800',
+                              }}>
+                              {item.displayName}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: FontSize.large,
+                                color: Colors.text,
+                              }}>
+                              {item.username}
+                            </Text>
+                          </View>
+                          <Button
+                            onPress={() => {
+                              Clipboard.setString(item.password);
+                              Toast.show(
+                                'Sao chép mật khẩu thành công',
+                                OptionToastSuccess,
+                              );
+                            }}
+                            buttonContainerStyle={{
+                              backgroundColor: 'transparent',
+                            }}>
+                            <CopyIcon />
+                          </Button>
                         </Button>
-                      </Button>
-                    </View>
-                  ))}
+                      </View>
+                    ))}
               </View>
             </View>
           )}
@@ -294,54 +312,62 @@ export const Home = ({navigation}: HomeProps) => {
               </View>
               <View style={{flex: 1}}>
                 {notes &&
-                  notes.map((item) => (
-                    <View key={item.id}>
-                      <Button
-                        onPress={() => {
-                          onPress();
-                        }}
-                        buttonContainerStyle={{
-                          flex: 1,
-                          borderBottomColor: Colors.gray,
-                          backgroundColor: 'transparent',
-                          borderBottomWidth: 0.3,
-                          borderStyle: 'solid',
-                          display: 'flex',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          gap: 20,
-                          marginVertical: 10,
-                          paddingBottom: 4,
-                        }}>
-                        <Image
-                          style={{
-                            width: 36,
-                            height: 36,
-                            objectFit: 'cover',
-                            borderRadius: 6,
+                  notes
+                    .filter(
+                      (item) =>
+                        !searchValue ||
+                        item.displayName
+                          .toLowerCase()
+                          .includes(searchValue.toLowerCase()),
+                    )
+                    .map((item) => (
+                      <View key={item.id}>
+                        <Button
+                          onPress={() => {
+                            onPress(item, 'NOTE');
                           }}
-                          source={ImageUrls.NOTE}
-                        />
-                        <View style={{flex: 1}}>
-                          <Text
+                          buttonContainerStyle={{
+                            flex: 1,
+                            borderBottomColor: Colors.gray,
+                            backgroundColor: 'transparent',
+                            borderBottomWidth: 0.3,
+                            borderStyle: 'solid',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 20,
+                            marginVertical: 10,
+                            paddingBottom: 4,
+                          }}>
+                          <Image
                             style={{
-                              fontSize: FontSize.xLarge,
-                              color: Colors.text,
-                              fontWeight: '800',
-                            }}>
-                            {item.displayName}
-                          </Text>
-                        </View>
-                      </Button>
-                    </View>
-                  ))}
+                              width: 36,
+                              height: 36,
+                              objectFit: 'cover',
+                              borderRadius: 6,
+                            }}
+                            source={ImageUrls.NOTE}
+                          />
+                          <View style={{flex: 1}}>
+                            <Text
+                              style={{
+                                fontSize: FontSize.xLarge,
+                                color: Colors.text,
+                                fontWeight: '800',
+                              }}>
+                              {item.displayName}
+                            </Text>
+                          </View>
+                        </Button>
+                      </View>
+                    ))}
               </View>
             </View>
           )}
           {!['password', 'note'].includes(filter) && (
             <View style={{flex: 1, marginHorizontal: 14, marginTop: 10}}>
               <View style={{display: 'flex', flexDirection: 'row', gap: 10}}>
-                <NoteIcon stroke={Colors.primary} />
+                <CardIcon stroke={Colors.primary} />
                 <Text
                   style={{
                     fontSize: FontSize.xLarge,
@@ -352,48 +378,83 @@ export const Home = ({navigation}: HomeProps) => {
                 </Text>
               </View>
               <View style={{flex: 1}}>
-                {notes &&
-                  notes.map((item) => (
-                    <View key={item.id}>
-                      <Button
-                        onPress={() => {
-                          onPress();
-                        }}
-                        buttonContainerStyle={{
-                          flex: 1,
-                          borderBottomColor: Colors.gray,
-                          backgroundColor: 'transparent',
-                          borderBottomWidth: 0.3,
-                          borderStyle: 'solid',
-                          display: 'flex',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          gap: 20,
-                          marginVertical: 10,
-                          paddingBottom: 4,
-                        }}>
-                        <Image
-                          style={{
-                            width: 36,
-                            height: 36,
-                            objectFit: 'cover',
-                            borderRadius: 6,
+                {cards &&
+                  cards
+                    .filter(
+                      (item) =>
+                        !searchValue ||
+                        item.displayName
+                          .toLowerCase()
+                          .includes(searchValue.toLowerCase()),
+                    )
+                    .map((item) => (
+                      <View key={item.id}>
+                        <Button
+                          onPress={() => {
+                            onPress(item, 'CARD');
                           }}
-                          source={ImageUrls.NOTE}
-                        />
-                        <View style={{flex: 1}}>
-                          <Text
+                          buttonContainerStyle={{
+                            flex: 1,
+                            borderBottomColor: Colors.gray,
+                            backgroundColor: 'transparent',
+                            borderBottomWidth: 0.3,
+                            borderStyle: 'solid',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 20,
+                            marginVertical: 10,
+                            paddingBottom: 4,
+                          }}>
+                          <Image
                             style={{
-                              fontSize: FontSize.xLarge,
-                              color: Colors.text,
-                              fontWeight: '800',
-                            }}>
-                            {item.displayName}
-                          </Text>
-                        </View>
-                      </Button>
-                    </View>
-                  ))}
+                              width: 36,
+                              height: 36,
+                              objectFit: 'cover',
+                              borderRadius: 6,
+                            }}
+                            source={ImageUrls.CARD}
+                          />
+                          <View style={{flex: 1}}>
+                            <Text
+                              style={{
+                                fontSize: FontSize.xLarge,
+                                color: Colors.text,
+                                fontWeight: '800',
+                              }}>
+                              {item.displayName}
+                            </Text>
+                            <View
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                gap: 2,
+                              }}>
+                              <Text
+                                style={{
+                                  fontSize: FontSize.large,
+                                  color: Colors.text,
+                                  letterSpacing: 2,
+                                  marginTop: 4,
+                                }}>
+                                ***********
+                              </Text>
+                              <Text
+                                style={{
+                                  fontSize: FontSize.large,
+                                  color: Colors.text,
+                                  letterSpacing: 2,
+                                }}>
+                                {item.numbers.substring(
+                                  item.numbers.length - 4,
+                                ) || ''}
+                              </Text>
+                            </View>
+                          </View>
+                        </Button>
+                      </View>
+                    ))}
               </View>
             </View>
           )}

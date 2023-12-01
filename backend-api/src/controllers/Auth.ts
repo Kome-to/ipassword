@@ -35,7 +35,7 @@ class AuthController extends AuthServices {
     const userData = await AuthRepository.checkAuthentication(masterPasswordHash);
     if (userData) {
       const token = generateToken(userData);
-      response.success(res, { token });
+      response.success(res, { token, user: userData });
     } else {
       throw new BadRequestError(messages.auth.failed);
     }

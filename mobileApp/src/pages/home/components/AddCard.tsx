@@ -5,9 +5,9 @@ import {Colors, FontSize} from '@common/assets/theme/variables';
 import {ImageUrls} from '@common/constants';
 import Button from '@components/Button/Button';
 import {setLoading} from '@services/common/actions';
-import {setNotes} from '@services/user/actions';
+import {setCards, setNotes} from '@services/user/actions';
 import React, {useEffect, useState} from 'react';
-import {Image, Text, TextInput, View, TouchableOpacity} from 'react-native';
+import {Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import ReactNativeModal from 'react-native-modal';
 import {useDispatch} from 'react-redux';
 import style from './Styles';
@@ -22,7 +22,7 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
     cardholderName: '',
     numbers: '',
     brand: '',
-    expirationDate: '',
+    expirationDate: {month: '', year: ''},
     securityCode: '',
   });
   const dispatch = useDispatch();
@@ -43,17 +43,20 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
   const getUserData = async () => {
     try {
       const {data} = await api.user.getData();
-      dispatch(setNotes([...data.notes]));
+      dispatch(setCards([...data.notes]));
     } catch (e) {
       console.log(e);
     }
   };
 
-  const onCreateNote = async (values) => {
+  const onCreateCard = async (values) => {
     try {
       dispatch(setLoading(true));
       console.log(values);
-      const {data} = await api.user.createNote(values);
+      const {data} = await api.user.createCard({
+        ...values,
+        expirationDate: JSON.stringify(values.expirationDate),
+      });
       console.log(data);
       await getUserData();
       onClose();
@@ -128,7 +131,7 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
                   backgroundColor: 'transparent',
                 }}
                 onPress={() => {
-                  onCreateNote(values);
+                  onCreateCard(values);
                 }}>
                 <Text
                   style={{
@@ -248,11 +251,14 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
                 }}>
                 <View style={style.textField}>
                   <Text style={{color: Colors.text, fontSize: FontSize.large}}>
-                    Tên chủ thẻ (Viết hoa không dấu)
+                    Tên chủ thẻ
                   </Text>
                   <TextInput
                     onChangeText={(text) => {
-                      setValues({...values, cardholderName: text});
+                      setValues({
+                        ...values,
+                        cardholderName: text.toUpperCase(),
+                      });
                     }}
                     value={values.cardholderName}
                     style={{color: Colors.text, fontSize: FontSize.large}}
@@ -275,6 +281,7 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
                     Số thẻ
                   </Text>
                   <TextInput
+                    keyboardType="numeric"
                     onChangeText={(text) => {
                       setValues({...values, numbers: text});
                     }}
@@ -301,23 +308,97 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
                   <Text style={{color: Colors.text, fontSize: FontSize.large}}>
                     Ngày hết hạn
                   </Text>
-                  <TextInput
-                    onChangeText={(text) => {
-                      setValues({...values, expirationDate: text});
-                    }}
-                    value={values.expirationDate}
+
+                  <View
                     style={{
-                      color: Colors.text,
-                      fontSize: FontSize.large,
-                      paddingRight: 46,
-                    }}
-                  />
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <TextInput
+                      keyboardType="numeric"
+                      style={{
+                        color: Colors.text,
+                        fontSize: FontSize.large,
+                        paddingRight: 46,
+                      }}
+                      onChangeText={(text) => {
+                        if (Number(text) >= 1 && Number(text) <= 12) {
+                          setValues({
+                            ...values,
+                            expirationDate: {
+                              ...values.expirationDate,
+                              month: text,
+                            },
+                          });
+                        } else {
+                          setValues({
+                            ...values,
+                            expirationDate: {
+                              ...values.expirationDate,
+                              month: '',
+                            },
+                          });
+                        }
+                      }}
+                      placeholderTextColor={Colors.gray}
+                      placeholder="MM"
+                      value={values.expirationDate.month}
+                    />
+                    {values.expirationDate.month.length > 0 && (
+                      <Text
+                        style={{
+                          color: Colors.text,
+                          fontSize: FontSize.large,
+                          paddingRight: 46,
+                        }}>
+                        /
+                      </Text>
+                    )}
+                    <TextInput
+                      placeholderTextColor={Colors.gray}
+                      keyboardType="numeric"
+                      style={{
+                        color: Colors.text,
+                        fontSize: FontSize.large,
+                        paddingRight: 46,
+                      }}
+                      onChangeText={(text) => {
+                        if (
+                          !Number(text) ||
+                          (text.length >= 2 &&
+                            (Number(text) <= 23 || Number(text) >= 100))
+                        ) {
+                          console.log(!Number(text));
+                          setValues({
+                            ...values,
+                            expirationDate: {
+                              ...values.expirationDate,
+                              year: '',
+                            },
+                          });
+                        } else {
+                          setValues({
+                            ...values,
+                            expirationDate: {
+                              ...values.expirationDate,
+                              year: text,
+                            },
+                          });
+                        }
+                      }}
+                      placeholder="YY"
+                      value={values.expirationDate.year}
+                    />
+                  </View>
                 </View>
                 <View style={[style.textField, {position: 'relative'}]}>
                   <Text style={{color: Colors.text, fontSize: FontSize.large}}>
                     Mã bảo mật
                   </Text>
                   <TextInput
+                    keyboardType="numeric"
                     onChangeText={(text) => {
                       setValues({...values, securityCode: text});
                     }}

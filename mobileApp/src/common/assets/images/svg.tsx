@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {GestureResponderEvent, ViewStyle} from 'react-native';
-import Svg, {Circle, G, Path, SvgXml} from 'react-native-svg';
+import Svg, {Circle, ClipPath, Defs, G, Path, SvgXml} from 'react-native-svg';
 import {Colors} from '../theme/variables';
 
 export interface SvgProps {
@@ -305,21 +305,21 @@ export const CardIcon = (props) => (
     viewBox="0 0 24 24"
     {...props}>
     <Path
-      stroke={Colors.gray}
+      stroke={props.stroke || Colors.gray}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}
       d="M21 10.5V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h7"
     />
     <Path
-      stroke={Colors.gray}
+      stroke={props.stroke || Colors.gray}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}
       d="M15 16.429c0-.474.384-.858.857-.858h4.286c.473 0 .857.384.857.858v2.714a.857.857 0 0 1-.857.857h-4.286a.857.857 0 0 1-.857-.857v-2.714Z"
     />
     <Path
-      stroke={Colors.gray}
+      stroke={props.stroke || Colors.gray}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}
@@ -342,7 +342,7 @@ export const Home = (props) => (
     />
   </Svg>
 );
-export const Group = (props) => (
+export const GroupIcon = (props) => (
   <Svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -480,5 +480,99 @@ export const AttachIcon = (props) => (
       fill={props.fill || Colors.gray}
       d="M14.328 5.348 5.13 19.704a3.304 3.304 0 0 0 .995 4.559 3.293 3.293 0 0 0 4.554-.996l2.373-3.704-.001-.001 5.933-9.262.001.001a1.652 1.652 0 0 0-.497-2.28 1.646 1.646 0 0 0-2.276.497h-.002L11.5 16a.966.966 0 0 1-1.336.291l-.221-.142a.97.97 0 0 1-.292-1.338l4.711-7.483h.002a3.841 3.841 0 0 1 5.312-1.16 3.856 3.856 0 0 1 1.16 5.32h-.002l-2.373 3.704h.002l-5.933 9.263a5.49 5.49 0 0 1-7.59 1.66 5.506 5.506 0 0 1-1.657-7.602l9.196-14.355 1.849 1.189ZM15.452 23.722a.97.97 0 0 1-.292-1.338l7.487-11.688 1.85 1.188-7.488 11.69a.966.966 0 0 1-1.336.29l-.221-.142Z"
     />
+  </Svg>
+);
+
+export const RightArrow = (props) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props?.width || 24}
+    height={props?.height || 24}
+    fill="none"
+    viewBox="0 0 24 24"
+    {...props}>
+    <Path
+      stroke={props?.stroke || Colors.text}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="m10 7 5 5-5 5"
+    />
+  </Svg>
+);
+
+export const MemberIcon = (props) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlSpace="preserve"
+    width={24}
+    height={24}
+    fill={props.fill || Colors.gray}
+    viewBox="0 0 472.615 472.615"
+    {...props}>
+    <Circle cx={236.308} cy={142.868} r={70.203} />
+    <Path d="m325.514 234.831-16.542-4.923-72.665 72.763-72.665-72.763-16.542 4.923c-42.831 12.898-71.582 51.495-71.582 96.197v82.511h321.575v-82.511c.002-44.702-28.748-83.299-71.579-96.197zM319.311 59.077c-11.9 0-23.306 3.208-33.317 8.938 24.209 16.125 40.208 43.645 40.208 74.849 0 18.496-5.625 35.697-15.239 50.004 2.762.348 5.542.609 8.348.609 37.12 0 67.249-30.129 67.249-67.249 0-37.023-30.129-67.151-67.249-67.151z" />
+    <Path d="m404.283 213.169-16.049-4.726-23.555 23.556c32.136 21.917 52.11 58.372 52.11 99.029V384h55.827v-78.966c-.001-42.634-27.471-79.557-68.333-91.865zM186.621 68.015c-10.01-5.73-21.416-8.938-33.316-8.938-37.12 0-67.249 30.128-67.249 67.151 0 37.12 30.129 67.249 67.249 67.249 2.805 0 5.586-.262 8.347-.609-9.614-14.306-15.239-31.508-15.239-50.004 0-31.204 15.999-58.724 40.208-74.849zM84.382 208.443l-15.951 4.726h-.099C27.471 225.477 0 262.4 0 305.034V384h55.827v-52.972c0-40.666 19.984-77.128 52.104-99.036l-23.549-23.549z" />
+  </Svg>
+);
+
+export const VaultIcon = (props) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    data-name="Layer 1"
+    viewBox="0 0 24 24"
+    fill={props.fill || Colors.gray}
+    {...props}>
+    <Defs>
+      <ClipPath id="a">
+        <Path d="M0 0h24v24H0z" />
+      </ClipPath>
+    </Defs>
+    <G
+      style={{
+        clipPath: 'url(#a)',
+      }}>
+      <Path d="M20 22.5H4a1 1 0 0 1 0-2h16a1 1 0 0 1 0 2Z" />
+      <Path d="M18.69 22.5a1 1 0 0 1-1-1v-18H6.31v18a1 1 0 0 1-2 0v-19a1 1 0 0 1 1-1h13.38a1 1 0 0 1 1 1v19a1 1 0 0 1-1 1Z" />
+      <Path d="M15 14.5H9a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1Zm-5-2h4v-5h-4Z" />
+      <Path d="M15 11H9a1 1 0 0 1 0-2h6a1 1 0 0 1 0 2ZM12 19.5a2 2 0 1 1 2-2 2 2 0 0 1-2 2Zm0-2Z" />
+    </G>
+  </Svg>
+);
+
+export const UserIcon = (props) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props?.width || 24}
+    height={props?.height || 24}
+    className="icon"
+    viewBox="0 0 1024 1024"
+    {...props}>
+    <Path
+      fill="#4A5699"
+      d="M691.573 338.89c-1.282 109.275-89.055 197.047-198.33 198.331-109.292 1.282-197.065-90.984-198.325-198.331-.809-68.918-107.758-68.998-106.948 0 1.968 167.591 137.681 303.31 305.272 305.278C660.85 646.136 796.587 503.52 798.521 338.89c.811-68.998-106.136-68.918-106.948 0z"
+    />
+    <Path
+      fill="#C45FA0"
+      d="M294.918 325.158c1.283-109.272 89.051-197.047 198.325-198.33 109.292-1.283 197.068 90.983 198.33 198.33.812 68.919 107.759 68.998 106.948 0C796.555 157.567 660.839 21.842 493.243 19.88c-167.604-1.963-303.341 140.65-305.272 305.278-.811 68.998 106.139 68.919 106.947 0z"
+    />
+    <Path
+      fill="#E5594F"
+      d="M222.324 959.994c.65-74.688 29.145-144.534 80.868-197.979 53.219-54.995 126.117-84.134 201.904-84.794 74.199-.646 145.202 29.791 197.979 80.867 54.995 53.219 84.13 126.119 84.79 201.905.603 68.932 107.549 68.99 106.947 0-1.857-213.527-176.184-387.865-389.716-389.721-213.551-1.854-387.885 178.986-389.721 389.721-.601 68.991 106.349 68.933 106.949.001z"
+    />
+  </Svg>
+);
+
+export const RetryIcon = (props) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={20}
+    height={20}
+    fill={Colors.gray}
+    viewBox="0 0 16 16"
+    {...props}>
+    <Path d="m14.955 7.986.116.01a1 1 0 0 1 .85 1.13 8 8 0 0 1-13.374 4.728l-.84.84c-.63.63-1.707.184-1.707-.707V10h3.987c.89 0 1.337 1.077.707 1.707l-.731.731a5.998 5.998 0 0 0 8.347-.264 6 6 0 0 0 1.63-3.33 1 1 0 0 1 1.131-.848l-.116-.01ZM11.514.813a8 8 0 0 1 1.942 1.336l.837-.837c.63-.63 1.707-.184 1.707.707V6h-3.981c-.89 0-1.337-1.077-.707-1.707l.728-.729a6 6 0 0 0-9.98 3.591 1 1 0 1 1-1.98-.281A8 8 0 0 1 11.514.813Z" />
   </Svg>
 );

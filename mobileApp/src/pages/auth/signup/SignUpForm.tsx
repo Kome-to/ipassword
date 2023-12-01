@@ -1,6 +1,6 @@
 import {KeyboardAwareScrollView} from '@codler/react-native-keyboard-aware-scroll-view';
 import {Colors, FontSize} from '@common/assets/theme/variables';
-import {ScenesKey, TOKEN_STORAGE_KEY} from '@common/constants';
+import {SYMMETRIC_KEY, ScenesKey, TOKEN_STORAGE_KEY} from '@common/constants';
 import {GlobalState} from '@common/redux/rootReducer';
 import cryptography from '@common/utils/cryptography';
 import Button from '@components/Button/Button';
@@ -20,6 +20,7 @@ import api from '@common/api';
 import axios from 'axios';
 import Toast from 'react-native-root-toast';
 import {OptionToast, OptionToastSuccess} from '@common/assets/theme/common';
+import {setCurrentUser} from '@services/user/actions';
 
 const SignUpForm = ({
   onBack,
@@ -94,11 +95,24 @@ const SignUpForm = ({
         values.password,
       );
       const {data} = await api.user.login({masterPasswordHash});
-      console.log(data);
       if (data?.token) {
+        dispatch(setCurrentUser(data.user));
         await AsyncStorage.setItem(
           TOKEN_STORAGE_KEY,
           JSON.stringify({Token: data?.token}),
+        );
+        const strengthMasterKey = await cryptography.getStrengthMasterKey(
+          values.email,
+          values.password,
+        );
+        const symmetricKey = await cryptography.aesDecrypted(
+          data.user.protectedSymmetricKey,
+          strengthMasterKey,
+        );
+        console.log('Symmetric Key', symmetricKey);
+        await AsyncStorage.setItem(
+          SYMMETRIC_KEY,
+          JSON.stringify({SymmetricKey: symmetricKey}),
         );
         Toast.show('Đăng nhập thành công', OptionToastSuccess);
         gotoHome(navigation);
@@ -106,7 +120,6 @@ const SignUpForm = ({
     } catch (e) {
       console.log(e.message);
       Toast.show('Email hoặc mật khẩu không đúng', OptionToast);
-
     } finally {
       dispatch(setLoading(false));
     }

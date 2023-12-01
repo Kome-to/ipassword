@@ -66,3 +66,34 @@ export interface EncryptedNoteAttributes {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface EncryptedCardAttributes {
+  id: string;
+  vaultId: string;
+  displayName: string;
+  cardholderName: string;
+  numbers: string;
+  brand: string;
+  expirationDate: string;
+  securityCode: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface GroupAttributes {
+  id: string;
+  ownerId: string;
+  name: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface GroupUserAttributes {
+  id: string;
+  userId: string;
+  groupId: string;
+  protectedSymmetricKey: string;
+  role: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

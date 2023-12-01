@@ -7,12 +7,16 @@ export enum ScenesKey {
   SIGN_UP = 'SIGN_UP',
   HOME = 'HOME',
   GROUP = 'GROUP',
+  GROUP_TABS = 'GROUP_TABS',
+  GROUP_DETAIL = 'GROUP_DETAIL',
   TOOL = 'TOOL',
   SETTING = 'SETTING',
+  PASSWORD_REQUIRE = 'PASSWORD_REQUIRE',
 }
 export const ToastDuration = 4000;
 
 export const TOKEN_STORAGE_KEY = 'I_PASSWORD_USER_TOKEN';
+export const SYMMETRIC_KEY = 'SYMMETRIC_KEY';
 
 export const ImageUrls = {
   BACKGROUND: require('@common/assets/images/background.png'),
@@ -33,4 +37,8 @@ export const ImageUrls = {
 
 export const AppConstants = {
   API_URL: 'http://10.0.2.2:4044',
+};
+
+export const ModalNames = {
+  PASSWORD_GENERATOR: 'PASSWORD_GENERATOR',
 };

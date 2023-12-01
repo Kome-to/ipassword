@@ -13,7 +13,7 @@ const configureStore = (initialState: {}) => {
     key: 'root',
     storage: AsyncStorage,
     debug: true,
-    blacklist: ['user'],
+    blacklist: ['common', 'user'],
   };
 
   const createDebugger = require('redux-flipper').default;

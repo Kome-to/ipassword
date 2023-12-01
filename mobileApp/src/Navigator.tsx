@@ -1,6 +1,6 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useRoute} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useEffect} from 'react';
 
@@ -11,14 +11,22 @@ import {getTokenStorage} from '@common/utils/storage';
 import {TabBar} from '@components/AppTabs/Tabs';
 import SignUp from '@pages/auth/signup/SignUp';
 import Start from '@pages/auth/start/Start';
-import {goToStart} from '@pages/auth/start/StartNavigation';
+import {
+  goToPasswordRequire,
+  goToStart,
+} from '@pages/auth/start/StartNavigation';
 import Group from '@pages/group/Group';
+import GroupHeader from '@pages/group/GroupHeader';
+import GroupDetail from '@pages/group/components/GroupDetail';
 import {Home} from '@pages/home/Home';
 import HomeHeader from '@pages/home/HomeHeader';
 import Setting from '@pages/setting/Setting';
+import Tool from '@pages/tool/Tool';
 import {gotoHome} from '@pages/verify-account/VerifyAccountNavigation';
 import {navigationRef} from 'RootNavigator';
-import Tool from '@pages/tool/Tool';
+import {useSelector} from 'react-redux';
+import ToolHeader from '@pages/tool/ToolHeader';
+import SettingHeader from '@pages/setting/SettingHeader';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -48,6 +56,19 @@ const Init = ({navigation}: InitProps) => {
   return <></>;
 };
 
+const GroupTabs = (props) => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+      initialRouteName={ScenesKey.GROUP}>
+      <Stack.Screen name={ScenesKey.GROUP} component={Group} />
+      <Stack.Screen name={ScenesKey.GROUP_DETAIL} component={GroupDetail} />
+    </Stack.Navigator>
+  );
+};
+
 const App = () => {
   return (
     <Tab.Navigator
@@ -61,23 +82,23 @@ const App = () => {
         component={Home}
       />
       <Tab.Screen
-        // options={{
-        //   header: HomeHeader,
-        // }}
-        name={ScenesKey.GROUP}
-        component={Group}
+        options={{
+          header: (props) => <GroupHeader {...props} />,
+        }}
+        name={ScenesKey.GROUP_TABS}
+        component={GroupTabs}
       />
       <Tab.Screen
-        // options={{
-        //   header: HomeHeader,
-        // }}
+        options={{
+          header: (props) => <ToolHeader {...props} />,
+        }}
         name={ScenesKey.TOOL}
         component={Tool}
       />
       <Tab.Screen
-        // options={{
-        //   header: HomeHeader,
-        // }}
+        options={{
+          header: (props) => <SettingHeader {...props} />,
+        }}
         name={ScenesKey.SETTING}
         component={Setting}
       />

@@ -5,10 +5,13 @@ import { v4 as uuidv4 } from 'uuid';
 import response from '../common/helpers/response';
 import { UserAttributes } from '../interfaces/User';
 import EncryptedNoteModel from '../models/EncryptedNote';
+import EncryptedCardModel from '../models/EncryptedCard';
 import EncryptedPasswordModel from '../models/EncryptedPassword';
 import UserVaultModel from '../models/UserVault';
 import VaultModel from '../models/Vault';
 import UserRepository from '../repositories/user';
+import GroupModel from '../models/Group';
+import GroupUserModel from '../models/GroupUser';
 
 export const userSerializer = (user: UserAttributes) => ({
   id: user.id,
@@ -56,7 +59,13 @@ class UserController {
       },
     });
 
-    const cards = [];
+    const cards = await EncryptedCardModel.findAll({
+      where: {
+        vaultId: {
+          [Op.in]: [...vaults.filter((vault) => vault.dataType === 'CARD').map((vault) => vault.id)],
+        },
+      },
+    });
 
     response.success(res, { passwords, notes, cards });
   };
@@ -89,6 +98,35 @@ class UserController {
     response.success(res, { passwordRecord });
   };
 
+  public createCard = async (req: Request, res: Response) => {
+    const { displayName, cardholderName, numbers, brand, expirationDate, securityCode } = req.body;
+
+    const vault = await VaultModel.create({
+      id: uuidv4(),
+      dataType: 'CARD',
+      type: 'USER',
+    });
+
+    const userVault = await UserVaultModel.create({
+      id: uuidv4(),
+      userId: req.user.id,
+      vaultId: vault.id,
+    });
+
+    const card = await EncryptedCardModel.create({
+      id: uuidv4(),
+      vaultId: vault.id,
+      displayName,
+      cardholderName,
+      numbers,
+      brand,
+      expirationDate,
+      securityCode,
+    });
+
+    response.success(res, { card });
+  };
+
   public createNote = async (req: Request, res: Response) => {
     const { displayName, content } = req.body;
 
@@ -112,6 +150,40 @@ class UserController {
     });
 
     response.success(res, { note });
+  };
+
+  public createGroup = async (req: Request, res: Response) => {
+    const { name, protectedSymmetricKey } = req.body;
+
+    const group = await GroupModel.create({
+      id: uuidv4(),
+      ownerId: req.user.id,
+      name,
+    });
+
+    await GroupUserModel.create({
+      id: uuidv4(),
+      userId: req.user.id,
+      groupId: group.id,
+      protectedSymmetricKey,
+      role: 'OWNER',
+    });
+
+    response.success(res, { group });
+  };
+
+  public getGroups = async (req: Request, res: Response) => {
+    let groups = [];
+    groups = await GroupModel.findAll({
+      where: { ownerId: req.user.id },
+    });
+
+    // groups = groups.map(async (group) => {
+    //   const members = await GroupUserModel.findAll({ where: { groupId: group.id } });
+    //   return { id: group.id, name: group.name, ownerId: group.ownerId, createdAt: group.createdAt, updatedAt: group.updatedAt, members };
+    // });
+    // console.log(groups);
+    response.success(res, { groups });
   };
 }
 

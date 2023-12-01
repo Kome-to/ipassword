@@ -15,6 +15,6 @@ export interface CreatePasswordParams {
 }
 
 export interface CreateNoteParams {
-  display: string;
+  displayName: string;
   content: string;
 }

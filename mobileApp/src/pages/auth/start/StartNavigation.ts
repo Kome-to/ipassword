@@ -14,3 +14,10 @@ export const goToAuth = (navigation: NavigationProps) => {
     routes: [{name: ScenesKey.AUTH}],
   });
 };
+
+export const goToPasswordRequire = (navigation: NavigationProps) => {
+  navigation.reset({
+    index: 0,
+    routes: [{name: ScenesKey.AUTH}, {name: ScenesKey.PASSWORD_REQUIRE}],
+  });
+};

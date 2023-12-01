@@ -67,6 +67,14 @@ class Cryptography {
     return this.pbkdf2(masterPassword, email);
   };
 
+  public getStrengthMasterKey = async (
+    email: string,
+    masterPassword: string,
+  ) => {
+    const masterKey = await this.pbkdf2(masterPassword, email);
+    return this.hkdfExpand(masterKey, email, 'register');
+  };
+
   public getMasterPasswordHash = async (
     email: string,
     masterPassword: string,

@@ -1,11 +1,13 @@
 import {Text, View} from 'react-native';
 
-import style from './TabStyles';
+import {GroupIcon, Home, Setting, Tool} from '@common/assets/images/svg';
 import {Colors, FontSize} from '@common/assets/theme/variables';
-import {Group, Home, Setting, Tool} from '@common/assets/images/svg';
-import Button from '@components/Button/Button';
 import {ScenesKey} from '@common/constants';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import Button from '@components/Button/Button';
+import {useNavigation} from '@react-navigation/native';
+import {setCurrentGroup, setFilter} from '@services/user/actions';
+import {useDispatch} from 'react-redux';
+import style from './TabStyles';
 
 export interface TabBarProps {
   state: any;
@@ -15,7 +17,7 @@ export interface TabBarProps {
 
 export const TabBar = ({state}: TabBarProps) => {
   const navigation: any = useNavigation();
-  const route = useRoute();
+  const dispatch = useDispatch();
 
   const tabs: {key: any; name: string; icon: any; iconFocus: any}[] = [
     {
@@ -26,10 +28,10 @@ export const TabBar = ({state}: TabBarProps) => {
     },
 
     {
-      key: ScenesKey.GROUP,
+      key: ScenesKey.GROUP_TABS,
       name: 'Nhóm',
-      icon: <Group />,
-      iconFocus: <Group fill={Colors.primary} />,
+      icon: <GroupIcon />,
+      iconFocus: <GroupIcon fill={Colors.primary} />,
     },
 
     {
@@ -47,13 +49,19 @@ export const TabBar = ({state}: TabBarProps) => {
     },
   ];
 
+  const onPress = (tab) => {
+    navigation.navigate(tab.key, {screen: ScenesKey.GROUP});
+    dispatch(setCurrentGroup(null));
+    dispatch(setFilter(''));
+  };
+
   return (
     <View style={style.tab}>
       {tabs.map((tab, i) =>
         state.index === i ? (
           <Button
             onPress={() => {
-              navigation.navigate(tab.key);
+              onPress(tab);
             }}
             key={tab.name}
             buttonContainerStyle={{
@@ -77,7 +85,7 @@ export const TabBar = ({state}: TabBarProps) => {
         ) : (
           <Button
             onPress={() => {
-              navigation.navigate(tab.key);
+              onPress(tab);
             }}
             key={tab.name}
             buttonContainerStyle={{
