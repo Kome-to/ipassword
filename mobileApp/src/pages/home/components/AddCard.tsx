@@ -5,12 +5,13 @@ import {Colors, FontSize} from '@common/assets/theme/variables';
 import {ImageUrls} from '@common/constants';
 import Button from '@components/Button/Button';
 import {setLoading} from '@services/common/actions';
-import {setCards, setNotes} from '@services/user/actions';
+import {setCards, setNotes, setSelectedCard} from '@services/user/actions';
 import React, {useEffect, useState} from 'react';
 import {Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import ReactNativeModal from 'react-native-modal';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import style from './Styles';
+import {selectSelectedCard} from '@services/user/selector';
 
 const AddCard = ({isVisible, onClose}): React.ReactElement => {
   const [canSave, setCanSave] = useState(false);
@@ -25,7 +26,34 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
     expirationDate: {month: '', year: ''},
     securityCode: '',
   });
+  const selectedCard = useSelector(selectSelectedCard);
   const dispatch = useDispatch();
+
+  const onCloseModal = () => {
+    onClose();
+    setValues({
+      displayName: '',
+      cardholderName: '',
+      numbers: '',
+      brand: '',
+      expirationDate: {month: '', year: ''},
+      securityCode: '',
+    });
+    dispatch(setSelectedCard(null));
+  };
+
+  useEffect(() => {
+    if (selectedCard) {
+      setValues({
+        displayName: selectedCard.displayName,
+        cardholderName: selectedCard.cardholderName,
+        numbers: selectedCard.numbers,
+        brand: selectedCard.brand,
+        expirationDate: JSON.parse(selectedCard.expirationDate),
+        securityCode: selectedCard.securityCode,
+      });
+    }
+  }, [selectedCard]);
 
   useEffect(() => {
     setCanSave(
@@ -43,7 +71,7 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
   const getUserData = async () => {
     try {
       const {data} = await api.user.getData();
-      dispatch(setCards([...data.notes]));
+      dispatch(setCards([...data.cards]));
     } catch (e) {
       console.log(e);
     }
@@ -53,13 +81,21 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
     try {
       dispatch(setLoading(true));
       console.log(values);
-      const {data} = await api.user.createCard({
-        ...values,
-        expirationDate: JSON.stringify(values.expirationDate),
-      });
-      console.log(data);
+      if (selectedCard) {
+        await api.user.updateCard({
+          id: selectedCard.id,
+          ...values,
+          expirationDate: JSON.stringify(values.expirationDate),
+        });
+      } else {
+        const {data} = await api.user.createCard({
+          ...values,
+          expirationDate: JSON.stringify(values.expirationDate),
+        });
+        console.log(data);
+      }
       await getUserData();
-      onClose();
+      onCloseModal();
     } catch (e) {
       console.log(e);
     } finally {
@@ -106,7 +142,7 @@ const AddCard = ({isVisible, onClose}): React.ReactElement => {
                   backgroundColor: 'transparent',
                 }}
                 onPress={() => {
-                  onClose();
+                  onCloseModal();
                 }}>
                 <Text
                   style={{

@@ -6,7 +6,11 @@ import {
   NoteIcon,
   PasswordIcon,
 } from '@common/assets/images/svg';
-import {OptionToastSuccess} from '@common/assets/theme/common';
+import {
+  OptionToast2,
+  OptionToastRed,
+  OptionToastSuccess,
+} from '@common/assets/theme/common';
 import {Colors, FontSize} from '@common/assets/theme/variables';
 import {ImageUrls} from '@common/constants';
 import {NavigationProps} from '@common/types';
@@ -14,11 +18,15 @@ import Button from '@components/Button/Button';
 import Search from '@components/Search/Search';
 import {useActionSheet} from '@expo/react-native-action-sheet';
 import Clipboard from '@react-native-clipboard/clipboard';
+import {setLoading} from '@services/common/actions';
 import {
   setCards,
   setFilter,
   setNotes,
   setPasswords,
+  setSelectedCard,
+  setSelectedNote,
+  setSelectedPassword,
 } from '@services/user/actions';
 import {
   selectCards,
@@ -33,6 +41,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import styles from './HomeStyles';
 import AddPasswordForm from './components/AddForm/AddPasswordForm';
 import {serviceNames} from './components/AddPassword';
+import {menuPasswordParams} from './util';
 
 interface HomeProps {
   navigation: NavigationProps;
@@ -52,23 +61,11 @@ export const Home = ({navigation}: HomeProps) => {
   const passwords = useSelector(selectPasswords);
   const notes = useSelector(selectNotes);
   const cards = useSelector(selectCards);
-  const {showActionSheetWithOptions} = useActionSheet();
   const [searchValue, setSearchValue] = useState('');
+  const {showActionSheetWithOptions} = useActionSheet();
 
-  const onPress = (data, type) => {
-    const options =
-      type === 'PASSWORD'
-        ? [
-            'Mở trong trình duyệt',
-            'Xem',
-            'Sao chép tên tài khoản',
-            'Sao chép mật khẩu',
-            'Hiển thị mật khẩu',
-            'Chỉnh sửa',
-            'Hủy',
-            'Xóa',
-          ]
-        : ['Xem', 'Chỉnh sửa', 'Hủy', 'Xóa'];
+  const onMenu = (data, type) => {
+    const options = ['Xem', 'Hủy', 'Xóa'];
     const destructiveButtonIndex = options.length - 1;
     const cancelButtonIndex = options.length - 2;
 
@@ -80,14 +77,22 @@ export const Home = ({navigation}: HomeProps) => {
         containerStyle: {backgroundColor: Colors.subPrimary},
         tintColor: Colors.text,
       },
-      (selectedIndex: number) => {
+      async (selectedIndex: number) => {
         switch (selectedIndex) {
-          case 1:
-            // Save
+          case 0:
+            if (type === 'NOTE') {
+              dispatch(setSelectedNote(data));
+            } else {
+              dispatch(setSelectedCard(data));
+            }
             break;
 
           case destructiveButtonIndex:
-            // Delete
+            if (type === 'NOTE') {
+              await onDeleteNote(data);
+            } else {
+              await onDeleteCard(data);
+            }
             break;
         }
       },
@@ -105,14 +110,54 @@ export const Home = ({navigation}: HomeProps) => {
     }
   }, [filter]);
 
+  const onDeletePassword = async (password) => {
+    try {
+      dispatch(setLoading(true));
+      await api.user.deletePassword({id: password.id});
+      await getUserData();
+      Toast.show('Xóa thành công', OptionToastRed);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+  const onDeleteNote = async (note) => {
+    try {
+      dispatch(setLoading(true));
+      await api.user.deleteNote({id: note.id});
+      await getUserData();
+      Toast.show('Xóa thành công', OptionToastRed);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+  const onDeleteCard = async (card) => {
+    try {
+      dispatch(setLoading(true));
+      await api.user.deleteCard({id: card.id});
+      await getUserData();
+      Toast.show('Xóa thành công', OptionToastRed);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
   const getUserData = async () => {
     try {
+      dispatch(setLoading(true));
       const {data} = await api.user.getData();
+
       dispatch(setPasswords([...data.passwords]));
       dispatch(setNotes([...data.notes]));
       dispatch(setCards([...data.cards]));
     } catch (e) {
       console.log(e);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -233,7 +278,15 @@ export const Home = ({navigation}: HomeProps) => {
                       <View key={item.id}>
                         <Button
                           onPress={() => {
-                            onPress(item, 'PASSWORD');
+                            showActionSheetWithOptions(
+                              ...menuPasswordParams(
+                                item,
+                                () => {
+                                  dispatch(setSelectedPassword(item));
+                                },
+                                onDeletePassword,
+                              ),
+                            );
                           }}
                           buttonContainerStyle={{
                             flex: 1,
@@ -324,12 +377,12 @@ export const Home = ({navigation}: HomeProps) => {
                       <View key={item.id}>
                         <Button
                           onPress={() => {
-                            onPress(item, 'NOTE');
+                            onMenu(item, 'NOTE');
                           }}
                           buttonContainerStyle={{
                             flex: 1,
-                            borderBottomColor: Colors.gray,
                             backgroundColor: 'transparent',
+                            borderBottomColor: Colors.gray,
                             borderBottomWidth: 0.3,
                             borderStyle: 'solid',
                             display: 'flex',
@@ -391,7 +444,7 @@ export const Home = ({navigation}: HomeProps) => {
                       <View key={item.id}>
                         <Button
                           onPress={() => {
-                            onPress(item, 'CARD');
+                            onMenu(item, 'CARD');
                           }}
                           buttonContainerStyle={{
                             flex: 1,
@@ -446,7 +499,7 @@ export const Home = ({navigation}: HomeProps) => {
                                   color: Colors.text,
                                   letterSpacing: 2,
                                 }}>
-                                {item.numbers.substring(
+                                {item.numbers?.substring(
                                   item.numbers.length - 4,
                                 ) || ''}
                               </Text>

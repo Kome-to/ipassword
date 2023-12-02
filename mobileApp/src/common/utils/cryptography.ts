@@ -18,12 +18,17 @@ class Cryptography {
     return forge.util.bytesToHex(forge.random.getBytesSync(32));
   };
 
-  public aesEncrypted = async (message: string, secret: string) => {
-    return CryptoJS.AES.encrypt(message, secret).toString();
+  public aesEncrypted = (message: string, secret: string) => {
+    const cipherText = CryptoJS.AES.encrypt(message, secret).toString();
+    return cipherText;
   };
 
-  public aesDecrypted = async (encrypted: string, secret: string) => {
-    return CryptoJS.AES.decrypt(encrypted, secret).toString(CryptoJS.enc.Utf8);
+  public aesDecrypted = (encrypted: string, secret: string) => {
+    const bytes = CryptoJS.AES.decrypt(encrypted, secret);
+
+    const originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+    return originalText;
   };
 
   public createRsaKeyPair = async (): Promise<{

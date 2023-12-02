@@ -15,16 +15,27 @@ import {useDispatch, useSelector} from 'react-redux';
 import ToggleSwitch from 'toggle-switch-react-native';
 import {generatePassword, strengthOptions} from './util';
 
-const getStatusColor = (status) => {
+export const getStatus = (password) => {
+  const status = passwordStrength(password, strengthOptions).value;
   switch (status) {
     case 'average':
-      return '255,204,0';
+      return {
+        id: status,
+        color: '255,204,0',
+        strength: 40,
+        message: 'Trung bình',
+      };
     case 'strong':
-      return '153,204,51';
+      return {id: status, color: '153,204,51', strength: 70, message: 'Mạnh'};
     case 'very_strong':
-      return '51,153,0';
+      return {
+        id: status,
+        color: '51,153,0',
+        strength: 100,
+        message: 'Rất mạnh',
+      };
     default:
-      return '255,204,0';
+      return {id: status, color: '204,51,0', strength: 20, message: 'Yếu'};
   }
 };
 
@@ -32,7 +43,6 @@ const PasswordGenerator: React.FC = () => {
   const modalStatus = useSelector((state: GlobalState) => state.common.modals);
   const dispatch = useDispatch();
   const [password, setPassword] = useState('');
-  const [strength, setStrength] = useState('very_strong');
   const [length, setLength] = useState(8);
   const [hasLowerCase, setHasLowerCase] = useState(true);
   const [hasUpperCase, setHasUpperCase] = useState(true);
@@ -68,7 +78,8 @@ const PasswordGenerator: React.FC = () => {
         length,
       });
       if (password) {
-        passwordHistory.current.push(password);
+        passwordHistory.current.unshift(password);
+        passwordHistory.current = passwordHistory.current.slice(0, 20);
       }
       setPassword(password);
     }
@@ -76,6 +87,7 @@ const PasswordGenerator: React.FC = () => {
 
   return (
     <ReactNativeModal
+      coverScreen
       style={{
         width: '100%',
         backgroundColor: Colors.subPrimary,
@@ -86,9 +98,7 @@ const PasswordGenerator: React.FC = () => {
       <View style={{width: '100%', height: '100%'}}>
         <View
           style={{
-            backgroundColor: `rgba(${getStatusColor(
-              passwordStrength(password, strengthOptions).value,
-            )}, 0.3)`,
+            backgroundColor: `rgba(${getStatus(password).color}, 0.3)`,
             minHeight: 120,
           }}>
           <View
@@ -148,21 +158,11 @@ const PasswordGenerator: React.FC = () => {
               <Text
                 style={{
                   fontSize: FontSize.xLarge,
-                  color: `rgb(${getStatusColor(
-                    passwordStrength(password, strengthOptions).value,
-                  )})`,
+                  color: `rgb(${getStatus(password).color})`,
                   fontWeight: '900',
                   letterSpacing: 1.2,
                 }}>
-                {`${
-                  passwordStrength(password, strengthOptions).value ===
-                  'average'
-                    ? 'Trung bình'
-                    : passwordStrength(password, strengthOptions).value ===
-                        'strong'
-                      ? 'Mạnh'
-                      : 'Rất mạnh'
-                }`}
+                {getStatus(password).message}
               </Text>
               <View
                 style={{
@@ -183,7 +183,11 @@ const PasswordGenerator: React.FC = () => {
                       length,
                     });
                     if (password) {
-                      passwordHistory.current.push(password);
+                      passwordHistory.current.unshift(password);
+                      passwordHistory.current = passwordHistory.current.slice(
+                        0,
+                        20,
+                      );
                     }
                     setPassword(password);
                   }}>
@@ -204,18 +208,8 @@ const PasswordGenerator: React.FC = () => {
             <View
               style={{
                 marginTop: 16,
-                width: `${
-                  passwordStrength(password, strengthOptions).value ===
-                  'average'
-                    ? '40%'
-                    : passwordStrength(password, strengthOptions).value ===
-                        'strong'
-                      ? '60%'
-                      : '100%'
-                }`,
-                backgroundColor: `rgb(${getStatusColor(
-                  passwordStrength(password, strengthOptions).value,
-                )})`,
+                width: `${getStatus(password).strength}%`,
+                backgroundColor: `rgb(${getStatus(password).color})`,
                 height: 3,
               }}
             />
@@ -313,13 +307,13 @@ const PasswordGenerator: React.FC = () => {
                 </TouchableOpacity>
               </View>
               <ScrollView style={{maxHeight: 240}}>
-                {passwordHistory.current.reverse().map((password, i) => (
+                {passwordHistory.current.map((password, i) => (
                   <View
                     key={`${password}.${i}`}
                     style={{
-                      backgroundColor: `rgba(${getStatusColor(
-                        passwordStrength(password, strengthOptions).value,
-                      )}, 0.3)`,
+                      backgroundColor: `rgba(${
+                        getStatus(password).color
+                      }, 0.3)`,
                       display: 'flex',
                       flexDirection: 'row',
                       justifyContent: 'space-between',

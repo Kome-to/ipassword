@@ -6,11 +6,14 @@ import {Colors, FontSize} from '@common/assets/theme/variables';
 import {ScenesKey} from '@common/constants';
 import Button from '@components/Button/Button';
 import {setFilter} from '@services/user/actions';
-import {selectFilter} from '@services/user/selector';
+import {
+  selectFilter,
+  selectSelectedCard,
+  selectSelectedNote,
+} from '@services/user/selector';
 import {useDispatch, useSelector} from 'react-redux';
 import style from './HomeStyles';
 import AddCard from './components/AddCard';
-import AddPasswordForm from './components/AddForm/AddPasswordForm';
 import AddNote from './components/AddNote';
 import AddPassword from './components/AddPassword';
 import OptionsModal from './components/OptionsModal';
@@ -22,6 +25,8 @@ const HomeHeader = (props) => {
   const [isAddCard, setIsAddCard] = useState(false);
   const filter = useSelector(selectFilter);
   const dispatch = useDispatch();
+  const selectedNote = useSelector(selectSelectedNote);
+  const selectedCard = useSelector(selectSelectedCard);
 
   const onCloseModal = () => {
     setIsShowOption(false);
@@ -86,17 +91,18 @@ const HomeHeader = (props) => {
               onToggle={onCloseModal}
               isVisible={isShowOption}
             />
-            {filter === 'password' && (
-              <AddPassword onClose={onCloseModal} isVisible={isAddPassword} />
-            )}
 
-            {filter === 'note' && (
-              <AddNote onClose={onCloseModal} isVisible={isAddNote} />
-            )}
+            <AddPassword onClose={onCloseModal} isVisible={isAddPassword} />
 
-            {filter === 'card' && (
-              <AddCard onClose={onCloseModal} isVisible={isAddCard} />
-            )}
+            <AddNote
+              onClose={onCloseModal}
+              isVisible={!!selectedNote || isAddNote}
+            />
+
+            <AddCard
+              onClose={onCloseModal}
+              isVisible={!!selectedCard || isAddCard}
+            />
           </View>
         );
       default:

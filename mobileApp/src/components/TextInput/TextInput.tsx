@@ -50,11 +50,11 @@ export interface TextInputComponentProps {
   isFormatKcalBurned?: boolean;
   onSearch?: () => void;
   searchColor?: string;
-  labelStyles?: ViewStyle | ViewStyle[];
+  labelStyles?: TextStyle | TextStyle[];
   isRequired?: boolean;
   rightAdornment?: React.ReactNode;
 }
-type Props = TextInputComponentProps & TextInputProps;
+type Props = TextInputComponentProps & TextInputProps & any;
 
 export enum InputType {
   NORMAL = 'NORMAL',

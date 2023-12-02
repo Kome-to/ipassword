@@ -1,17 +1,19 @@
 import { Request, Response } from 'express';
 import { Op } from 'sequelize';
 
+import { has } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import BadRequestError from '../common/errors/types/BadRequestError';
 import response from '../common/helpers/response';
 import { UserAttributes } from '../interfaces/User';
-import EncryptedNoteModel from '../models/EncryptedNote';
 import EncryptedCardModel from '../models/EncryptedCard';
+import EncryptedNoteModel from '../models/EncryptedNote';
 import EncryptedPasswordModel from '../models/EncryptedPassword';
+import GroupModel from '../models/Group';
+import GroupUserModel from '../models/GroupUser';
 import UserVaultModel from '../models/UserVault';
 import VaultModel from '../models/Vault';
 import UserRepository from '../repositories/user';
-import GroupModel from '../models/Group';
-import GroupUserModel from '../models/GroupUser';
 
 export const userSerializer = (user: UserAttributes) => ({
   id: user.id,
@@ -98,6 +100,47 @@ class UserController {
     response.success(res, { passwordRecord });
   };
 
+  public updatePassword = async (req: Request, res: Response) => {
+    const existPassword = await EncryptedPasswordModel.findOne({ where: { id: req.body.id } });
+
+    if (!existPassword) {
+      throw new BadRequestError('Mật khẩu không tồn tại');
+    }
+
+    const update: any = {};
+
+    if (has(req.body, 'displayName')) {
+      update.displayName = req.body.displayName;
+    }
+
+    if (has(req.body, 'username')) {
+      update.username = req.body.username;
+    }
+    if (has(req.body, 'password')) {
+      update.password = req.body.password;
+    }
+
+    if (has(req.body, 'url')) {
+      update.url = req.body.url;
+    }
+
+    await EncryptedPasswordModel.update({ ...update }, { where: { id: existPassword.id } });
+
+    response.success(res);
+  };
+
+  public deletePassword = async (req: Request, res: Response) => {
+    const existPassword = await EncryptedPasswordModel.findOne({ where: { id: req.query.id } });
+
+    if (!existPassword) {
+      throw new BadRequestError('Mật khẩu không tồn tại');
+    }
+
+    await existPassword.destroy();
+
+    response.success(res);
+  };
+
   public createCard = async (req: Request, res: Response) => {
     const { displayName, cardholderName, numbers, brand, expirationDate, securityCode } = req.body;
 
@@ -127,6 +170,57 @@ class UserController {
     response.success(res, { card });
   };
 
+  public updateCard = async (req: Request, res: Response) => {
+    const existCard = await EncryptedCardModel.findOne({ where: { id: req.body.id } });
+    console.log(req.body);
+
+    if (!existCard) {
+      throw new BadRequestError('Ghi chú không tồn tại');
+    }
+
+    const update: any = {};
+
+    if (has(req.body, 'displayName')) {
+      update.displayName = req.body.displayName;
+    }
+
+    if (has(req.body, 'cardholderName')) {
+      update.cardholderName = req.body.cardholderName;
+    }
+
+    if (has(req.body, 'numbers')) {
+      update.numbers = req.body.numbers;
+    }
+
+    if (has(req.body, 'brand')) {
+      update.brand = req.body.brand;
+    }
+
+    if (has(req.body, 'expirationDate')) {
+      update.expirationDate = req.body.expirationDate;
+    }
+
+    if (has(req.body, 'securityCode')) {
+      update.securityCode = req.body.securityCode;
+    }
+
+    await EncryptedCardModel.update({ ...update }, { where: { id: existCard.id } });
+
+    response.success(res);
+  };
+
+  public deleteCard = async (req: Request, res: Response) => {
+    const existCard = await EncryptedCardModel.findOne({ where: { id: req.query.id } });
+
+    if (!existCard) {
+      throw new BadRequestError('Thẻ không tồn tại');
+    }
+
+    await existCard.destroy();
+
+    response.success(res);
+  };
+
   public createNote = async (req: Request, res: Response) => {
     const { displayName, content } = req.body;
 
@@ -150,6 +244,40 @@ class UserController {
     });
 
     response.success(res, { note });
+  };
+
+  public updateNote = async (req: Request, res: Response) => {
+    const existNote = await EncryptedNoteModel.findOne({ where: { id: req.body.id } });
+
+    if (!existNote) {
+      throw new BadRequestError('Ghi chú không tồn tại');
+    }
+
+    const update: any = {};
+
+    if (has(req.body, 'displayName')) {
+      update.displayName = req.body.displayName;
+    }
+
+    if (has(req.body, 'content')) {
+      update.content = req.body.content;
+    }
+
+    await EncryptedNoteModel.update({ ...update }, { where: { id: existNote.id } });
+
+    response.success(res);
+  };
+
+  public deleteNote = async (req: Request, res: Response) => {
+    const existNote = await EncryptedNoteModel.findOne({ where: { id: req.query.id } });
+
+    if (!existNote) {
+      throw new BadRequestError('Mật khẩu không tồn tại');
+    }
+
+    await existNote.destroy();
+
+    response.success(res);
   };
 
   public createGroup = async (req: Request, res: Response) => {

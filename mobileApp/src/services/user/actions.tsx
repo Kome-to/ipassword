@@ -12,6 +12,9 @@ export const ActionTypes = {
   setCards: `${ns}SET_CARDS`,
   setGroups: `${ns}SET_GROUPS`,
   setCurrentGroup: `${ns}SET_CURRENT_GROUP`,
+  setSelectedCard: `${ns}SET_SELECTED_CARD`,
+  setSelectedPassword: `${ns}SET_SELECTED_PASSWORD`,
+  setSelectedNote: `${ns}SET_SELECTED_NOTE`,
 };
 
 export const getCurrentUser = createAction(ActionTypes.getCurrentUser);
@@ -23,3 +26,8 @@ export const setNotes = createAction(ActionTypes.setNotes);
 export const setCards = createAction(ActionTypes.setCards);
 export const setGroups = createAction(ActionTypes.setGroups);
 export const setCurrentGroup = createAction(ActionTypes.setCurrentGroup);
+export const setSelectedCard = createAction(ActionTypes.setSelectedCard);
+export const setSelectedPassword = createAction(
+  ActionTypes.setSelectedPassword,
+);
+export const setSelectedNote = createAction(ActionTypes.setSelectedNote);

@@ -1,4 +1,7 @@
 import {CreatePasswordParams, UserRegisterParams} from '@common/api/apiTypes';
+import {SYMMETRIC_KEY} from '@common/constants';
+import {passwordTransform} from '@pages/home/util';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AxiosInstance} from 'axios';
 
 const authUrl = '/api/v1/auth';
@@ -28,6 +31,30 @@ export class UserService {
     const {data} = await this.axios.post(`${userUrl}/password`, params);
     return data;
   };
+  updatePassword = async (params) => {
+    const {data} = await this.axios.put(`${userUrl}/password`, params);
+    return data;
+  };
+  deletePassword = async (params) => {
+    const {data} = await this.axios.delete(`${userUrl}/password`, {params});
+    return data;
+  };
+  updateNote = async (params) => {
+    const {data} = await this.axios.put(`${userUrl}/note`, params);
+    return data;
+  };
+  deleteNote = async (params) => {
+    const {data} = await this.axios.delete(`${userUrl}/note`, {params});
+    return data;
+  };
+  updateCard = async (params) => {
+    const {data} = await this.axios.put(`${userUrl}/card`, params);
+    return data;
+  };
+  deleteCard = async (params) => {
+    const {data} = await this.axios.delete(`${userUrl}/card`, {params});
+    return data;
+  };
 
   createNote = async (params: CreatePasswordParams) => {
     const {data} = await this.axios.post(`${userUrl}/note`, params);
@@ -50,7 +77,20 @@ export class UserService {
   };
 
   getData = async () => {
-    const {data} = await this.axios.get(`${userUrl}/data`);
-    return data;
+    const {data: result1} = await this.axios.get(`${userUrl}/data`);
+    const {data: result2} = result1;
+    const keyValue = await AsyncStorage.getItem(SYMMETRIC_KEY);
+    const key = JSON.parse(keyValue || '').SymmetricKey;
+    if (key) {
+      let {passwords, notes, cards} = result2;
+
+      passwords = passwords.map((item) => {
+        const en = passwordTransform(item, key, 'de');
+        return en;
+      });
+
+      return {data: {passwords, notes, cards}};
+    }
+    return {data: {passwords: [], notes: [], cards: []}};
   };
 }

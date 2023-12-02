@@ -1,6 +1,6 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {NavigationContainer, useRoute} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useEffect} from 'react';
 
@@ -11,22 +11,22 @@ import {getTokenStorage} from '@common/utils/storage';
 import {TabBar} from '@components/AppTabs/Tabs';
 import SignUp from '@pages/auth/signup/SignUp';
 import Start from '@pages/auth/start/Start';
-import {
-  goToPasswordRequire,
-  goToStart,
-} from '@pages/auth/start/StartNavigation';
+import {goToStart} from '@pages/auth/start/StartNavigation';
 import Group from '@pages/group/Group';
 import GroupHeader from '@pages/group/GroupHeader';
 import GroupDetail from '@pages/group/components/GroupDetail';
 import {Home} from '@pages/home/Home';
 import HomeHeader from '@pages/home/HomeHeader';
+import ChangePassword from '@pages/setting/ChangePassword';
+import Policy from '@pages/setting/Policy';
 import Setting from '@pages/setting/Setting';
+import SettingAccount from '@pages/setting/SettingAccount';
+import SettingHeader from '@pages/setting/SettingHeader';
 import Tool from '@pages/tool/Tool';
+import ToolHeader from '@pages/tool/ToolHeader';
 import {gotoHome} from '@pages/verify-account/VerifyAccountNavigation';
 import {navigationRef} from 'RootNavigator';
-import {useSelector} from 'react-redux';
-import ToolHeader from '@pages/tool/ToolHeader';
-import SettingHeader from '@pages/setting/SettingHeader';
+import Advance from '@pages/setting/Advance';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -69,6 +69,28 @@ const GroupTabs = (props) => {
   );
 };
 
+const SettingTabs = (props) => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+      initialRouteName={ScenesKey.SETTING}>
+      <Stack.Screen name={ScenesKey.SETTING} component={Setting} />
+      <Stack.Screen
+        name={ScenesKey.SETTING_ACCOUNT}
+        component={SettingAccount}
+      />
+      <Stack.Screen
+        name={ScenesKey.SETTING_CHANGE_PASS}
+        component={ChangePassword}
+      />
+      <Stack.Screen name={ScenesKey.SETTING_ADVANCE} component={Advance} />
+      <Stack.Screen name={ScenesKey.SETTING_POLICY} component={Policy} />
+    </Stack.Navigator>
+  );
+};
+
 const App = () => {
   return (
     <Tab.Navigator
@@ -99,16 +121,11 @@ const App = () => {
         options={{
           header: (props) => <SettingHeader {...props} />,
         }}
-        name={ScenesKey.SETTING}
-        component={Setting}
+        name={ScenesKey.SETTING_TABS}
+        component={SettingTabs}
       />
     </Tab.Navigator>
   );
-  // return (
-  //   <View>
-  //     <Text>123</Text>
-  //   </View>
-  // );
 };
 
 const Auth = () => {

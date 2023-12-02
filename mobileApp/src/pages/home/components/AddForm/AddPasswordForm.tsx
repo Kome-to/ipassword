@@ -2,17 +2,28 @@ import api from '@common/api';
 import {CreatePasswordParams} from '@common/api/apiTypes';
 import {Eye, EyeSlash} from '@common/assets/images/svg';
 import {Colors, FontSize} from '@common/assets/theme/variables';
-import {ImageUrls} from '@common/constants';
+import {ImageUrls, SYMMETRIC_KEY} from '@common/constants';
 import Button from '@components/Button/Button';
 import {setLoading} from '@services/common/actions';
-import {setAddPassword, setPasswords} from '@services/user/actions';
-import {selectAddPassword, selectPasswords} from '@services/user/selector';
+import {
+  setAddPassword,
+  setPasswords,
+  setSelectedPassword,
+} from '@services/user/actions';
+import {
+  selectAddPassword,
+  selectPasswords,
+  selectSelectedPassword,
+} from '@services/user/selector';
 import React, {useEffect, useState} from 'react';
 import {Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import ReactNativeModal from 'react-native-modal';
 import {useDispatch, useSelector} from 'react-redux';
 import {serviceNames} from '../AddPassword';
 import style from '../Styles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {passwordTransform} from '@pages/home/util';
+var CryptoJS = require('crypto-js');
 
 const AddPasswordForm = ({}) => {
   const dispatch = useDispatch();
@@ -20,6 +31,7 @@ const AddPasswordForm = ({}) => {
   const [canSave, setCanSave] = useState(false);
   const [hidePassword, setHidePassword] = useState(true);
   const passwords = useSelector(selectPasswords);
+  const selectedPassword = useSelector(selectSelectedPassword);
   const [values, setValues] = useState<CreatePasswordParams>({
     displayName: '',
     username: '',
@@ -28,18 +40,39 @@ const AddPasswordForm = ({}) => {
     serviceName: '',
   });
 
+  const onClose = () => {
+    dispatch(setAddPassword(''));
+    dispatch(setSelectedPassword(''));
+    setValues({
+      displayName: '',
+      username: '',
+      password: '',
+      url: '',
+      serviceName: '',
+    });
+  };
+
   useEffect(() => {
     if (!addPassword) {
-      setValues({
-        displayName: '',
-        username: '',
-        password: '',
-        url: '',
-        serviceName: '',
-      });
+      if (selectedPassword) {
+        setValues({
+          displayName: selectedPassword.displayName,
+          username: selectedPassword.username,
+          password: selectedPassword.password,
+          url: selectedPassword?.url,
+          serviceName: selectedPassword?.serviceName,
+        });
+      } else {
+        setValues({
+          displayName: '',
+          username: '',
+          password: '',
+          url: '',
+          serviceName: '',
+        });
+      }
     } else {
       const service = serviceNames.find((item) => item.name === addPassword);
-      console.log(values);
       if (service) {
         setValues({
           ...values,
@@ -49,8 +82,7 @@ const AddPasswordForm = ({}) => {
         });
       }
     }
-  }, [addPassword]);
-  useEffect(() => {}, [addPassword]);
+  }, [addPassword, selectedPassword]);
 
   useEffect(() => {
     if (
@@ -74,12 +106,25 @@ const AddPasswordForm = ({}) => {
     }
   };
 
-  const onCreatePassword = async (values: CreatePasswordParams) => {
+  const onSave = async (values: CreatePasswordParams) => {
     try {
       dispatch(setLoading(true));
-      const {data} = await api.user.createPassword(values);
-      await getUserData();
-      dispatch(setAddPassword(''));
+
+      const dataKey = await AsyncStorage.getItem(SYMMETRIC_KEY);
+      const key = JSON.parse(dataKey || '')?.SymmetricKey;
+      if (key) {
+        const transform = await passwordTransform(values, key, 'en');
+        if (!selectedPassword) {
+          await api.user.createPassword(transform);
+        } else {
+          await api.user.updatePassword({
+            id: selectedPassword.id,
+            ...transform,
+          });
+        }
+        await getUserData();
+        onClose();
+      }
     } catch (e) {
     } finally {
       dispatch(setLoading(false));
@@ -97,7 +142,7 @@ const AddPasswordForm = ({}) => {
         height: '100%',
         backgroundColor: Colors.background,
       }}
-      isVisible={!!addPassword}>
+      isVisible={!!addPassword || !!selectedPassword}>
       <View
         style={{
           width: '100%',
@@ -118,9 +163,7 @@ const AddPasswordForm = ({}) => {
             buttonContainerStyle={{
               backgroundColor: 'transparent',
             }}
-            onPress={() => {
-              dispatch(setAddPassword(''));
-            }}>
+            onPress={onClose}>
             <Text
               style={{
                 color: Colors.blue3,
@@ -134,8 +177,7 @@ const AddPasswordForm = ({}) => {
               backgroundColor: 'transparent',
             }}
             onPress={() => {
-              onCreatePassword(values);
-              // dispatch(setAddPassword(''));
+              onSave(values);
             }}>
             <Text
               style={{
@@ -163,8 +205,11 @@ const AddPasswordForm = ({}) => {
                   borderRadius: 6,
                 }}
                 source={
-                  serviceNames.find((item) => item.name === addPassword)
-                    ?.image || ImageUrls.LOCK
+                  serviceNames.find(
+                    (item) =>
+                      item.name === addPassword ||
+                      item.name === selectedPassword?.serviceName,
+                  )?.image || ImageUrls.LOCK
                 }
               />
             </View>
@@ -219,7 +264,6 @@ const AddPasswordForm = ({}) => {
                 Mật khẩu
               </Text>
               <TextInput
-                placeholder="CVV/CVC"
                 onChangeText={(text) => {
                   setValues({...values, password: text});
                 }}

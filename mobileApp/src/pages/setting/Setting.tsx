@@ -1,13 +1,38 @@
-import {NoteIcon, RightArrow, UserIcon} from '@common/assets/images/svg';
+import {
+  AdvanceIcon,
+  InfoIcon,
+  PolicyIcon,
+  Premium,
+  RightArrow,
+  StarIcon,
+  SupportIcon,
+  UserIcon,
+} from '@common/assets/images/svg';
 import {Colors, FontSize, SCREEN_HEIGHT} from '@common/assets/theme/variables';
-import {SYMMETRIC_KEY, TOKEN_STORAGE_KEY} from '@common/constants';
+import {SYMMETRIC_KEY, ScenesKey, TOKEN_STORAGE_KEY} from '@common/constants';
 import Button from '@components/Button/Button';
 import {goToAuth} from '@pages/auth/start/StartNavigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {selectCurrentUser} from '@services/user/selector';
 import React from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {Linking, Text, TouchableOpacity, View} from 'react-native';
 import {useSelector} from 'react-redux';
+
+export const openUrl = async (url: string) => {
+  try {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      console.log('====================================');
+      console.log('Opening... ', url);
+      console.log('====================================');
+      return Linking.openURL(url);
+    } else {
+      console.log("Can't handle to ", url);
+    }
+  } catch (e) {
+    console.log('Error:', e);
+  }
+};
 
 const Setting = ({navigation}): React.ReactElement => {
   const currentUser = useSelector(selectCurrentUser);
@@ -20,38 +45,45 @@ const Setting = ({navigation}): React.ReactElement => {
 
   const container1 = [
     {
-      icon: <NoteIcon />,
+      icon: <InfoIcon />,
       name: 'Thông tin tài khoản',
+      scene: ScenesKey.SETTING_ACCOUNT,
     },
     {
-      icon: <NoteIcon />,
+      icon: <AdvanceIcon />,
       name: 'Cài đặt nâng cao',
+      scene: ScenesKey.SETTING_ADVANCE,
     },
     {
-      icon: <NoteIcon />,
+      icon: <Premium />,
       name: 'Nâng cấp tài khoản',
+      scene: ScenesKey.SETTING_ACCOUNT,
     },
-    {
-      icon: <NoteIcon />,
-      name: 'Thay đổi mật khẩu',
-    },
+    // {
+    //   icon: <NoteIcon />,
+    //   name: 'Thay đổi mật khẩu',
+    //   scene: ScenesKey.SETTING_CHANGE_PASS,
+    // },
   ];
 
   const container2 = [
     {
-      icon: <NoteIcon />,
+      icon: <SupportIcon />,
       name: 'Giúp đỡ và hỗ trợ',
+      url: 'https://github.com/Kome-to/ipassword',
     },
     {
-      icon: <NoteIcon />,
+      icon: <StarIcon />,
       name: 'Đánh giá iPassword',
+      url: 'http://play.google.com/store/apps/details',
     },
   ];
 
   const container3 = [
     {
-      icon: <NoteIcon />,
+      icon: <PolicyIcon />,
       name: 'Chính sách bảo mật',
+      scene: ScenesKey.SETTING_POLICY,
     },
   ];
   return (
@@ -59,7 +91,7 @@ const Setting = ({navigation}): React.ReactElement => {
       <View
         style={{
           width: '100%',
-          height: SCREEN_HEIGHT - 220,
+          height: SCREEN_HEIGHT - 240,
           paddingBottom: 20,
         }}>
         <View
@@ -96,8 +128,7 @@ const Setting = ({navigation}): React.ReactElement => {
             <Text style={{color: Colors.primary, fontSize: FontSize.xxLarger}}>
               {currentUser?.firstName &&
                 currentUser?.lastName &&
-                `${currentUser.firstName} ${currentUser.firstName}`}{' '}
-              {'Duc Anh'}
+                `${currentUser.firstName} ${currentUser.firstName}`}
             </Text>
           </Text>
           <Text style={{color: Colors.text, fontSize: FontSize.xLarge}}>
@@ -112,7 +143,13 @@ const Setting = ({navigation}): React.ReactElement => {
             borderRadius: 6,
           }}>
           {container1.map((item, i) => (
-            <TouchableOpacity key={i} onPress={() => {}}>
+            <TouchableOpacity
+              key={i}
+              onPress={() => {
+                navigation.getParent().navigate(ScenesKey.SETTING_TABS, {
+                  screen: item.scene,
+                });
+              }}>
               <View
                 style={[
                   {
@@ -158,7 +195,11 @@ const Setting = ({navigation}): React.ReactElement => {
             borderRadius: 6,
           }}>
           {container2.map((item, i) => (
-            <TouchableOpacity key={i} onPress={() => {}}>
+            <TouchableOpacity
+              key={i}
+              onPress={async () => {
+                await openUrl(item.url);
+              }}>
               <View
                 style={[
                   {
@@ -204,7 +245,13 @@ const Setting = ({navigation}): React.ReactElement => {
             borderRadius: 6,
           }}>
           {container3.map((item, i) => (
-            <TouchableOpacity key={i} onPress={() => {}}>
+            <TouchableOpacity
+              key={i}
+              onPress={() => {
+                navigation.getParent().navigate(ScenesKey.SETTING_TABS, {
+                  screen: item.scene,
+                });
+              }}>
               <View
                 style={[
                   {

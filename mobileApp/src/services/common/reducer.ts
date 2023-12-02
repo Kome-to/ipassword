@@ -26,7 +26,7 @@ const defaultState: CommonState = {
   showDownLoadProgress: false,
   downloadProgressPercent: 0,
   downloadType: null,
-  modals: {PASSWORD_GENERATOR: false},
+  modals: {PASSWORD_GENERATOR: false, ANALYSIS: false},
 };
 
 class State {

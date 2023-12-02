@@ -9,6 +9,9 @@ import {
   setGroups,
   setNotes,
   setPasswords,
+  setSelectedCard,
+  setSelectedNote,
+  setSelectedPassword,
 } from './actions';
 
 class DefaultState {
@@ -21,6 +24,9 @@ class DefaultState {
   cards: any[];
   groups: any[];
   currentGroup: any;
+  selectedPassword: any;
+  selectedNote: any;
+  selectedCard: any;
 }
 
 class State {
@@ -32,6 +38,9 @@ class State {
   cards: any[];
   groups: any[];
   currentGroup: any;
+  selectedPassword: any;
+  selectedNote: any;
+  selectedCard: any;
 }
 
 const reducer = new ReducerFactory(new State())
@@ -62,6 +71,15 @@ const reducer = new ReducerFactory(new State())
   })
   .addReducer(setCurrentGroup, (state, action) => {
     return {...state, currentGroup: action.payload};
+  })
+  .addReducer(setSelectedPassword, (state, action) => {
+    return {...state, selectedPassword: action.payload};
+  })
+  .addReducer(setSelectedNote, (state, action) => {
+    return {...state, selectedNote: action.payload};
+  })
+  .addReducer(setSelectedCard, (state, action) => {
+    return {...state, selectedCard: action.payload};
   })
   .toReducer();
 

@@ -42,7 +42,7 @@ export const TabBar = ({state}: TabBarProps) => {
     },
 
     {
-      key: ScenesKey.SETTING,
+      key: ScenesKey.SETTING_TABS,
       name: 'Cài đặt',
       icon: <Setting />,
       iconFocus: <Setting stroke={Colors.primary} />,
@@ -50,7 +50,13 @@ export const TabBar = ({state}: TabBarProps) => {
   ];
 
   const onPress = (tab) => {
-    navigation.navigate(tab.key, {screen: ScenesKey.GROUP});
+    if (tab.key === ScenesKey.GROUP_TABS) {
+      navigation.navigate(tab.key, {screen: ScenesKey.GROUP});
+    } else if (tab.key === ScenesKey.SETTING_TABS) {
+      navigation.navigate(tab.key, {screen: ScenesKey.SETTING});
+    } else {
+      navigation.navigate(tab.key);
+    }
     dispatch(setCurrentGroup(null));
     dispatch(setFilter(''));
   };

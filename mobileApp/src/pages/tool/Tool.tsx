@@ -1,13 +1,14 @@
-import {GroupIcon, RightArrow} from '@common/assets/images/svg';
+import {AnalysisIcon, PassGenIcon, RightArrow} from '@common/assets/images/svg';
 import {Colors, FontSize} from '@common/assets/theme/variables';
+import {ModalNames} from '@common/constants';
+import {toggleModal} from '@services/common/actions';
 import React from 'react';
 import {Text, TouchableOpacity, View} from 'react-native';
-import PasswordGenerator from './PassworeGenerator';
 import {useDispatch} from 'react-redux';
-import {toggleModal} from '@services/common/actions';
-import {ModalNames} from '@common/constants';
+import Analysis from './Analysis';
+import PasswordGenerator from './PassworeGenerator';
 
-const Tool = (): React.ReactElement => {
+const Tool = (props): React.ReactElement => {
   const dispatch = useDispatch();
   return (
     <View>
@@ -35,9 +36,9 @@ const Tool = (): React.ReactElement => {
               flexDirection: 'row',
               justifyContent: 'space-between',
               gap: 20,
-              paddingLeft: 20,
+              paddingLeft: 10,
             }}>
-            <GroupIcon width={36} height={36} />
+            <PassGenIcon />
             <View>
               <Text
                 style={{
@@ -59,7 +60,11 @@ const Tool = (): React.ReactElement => {
           <RightArrow width={40} height={40} stroke={Colors.primary} />
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={{marginTop: 20}} onPress={() => {}}>
+      <TouchableOpacity
+        style={{marginTop: 20}}
+        onPress={() => {
+          dispatch(toggleModal(ModalNames.ANALYSIS));
+        }}>
         <View
           style={{
             display: 'flex',
@@ -79,9 +84,9 @@ const Tool = (): React.ReactElement => {
               flexDirection: 'row',
               justifyContent: 'space-between',
               gap: 20,
-              paddingLeft: 20,
+              paddingLeft: 10,
             }}>
-            <GroupIcon width={36} height={36} />
+            <AnalysisIcon />
             <View>
               <Text
                 style={{
@@ -103,7 +108,7 @@ const Tool = (): React.ReactElement => {
           <RightArrow width={40} height={40} stroke={Colors.primary} />
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={{marginTop: 20}} onPress={() => {}}>
+      {/* <TouchableOpacity style={{marginTop: 20}} onPress={() => {}}>
         <View
           style={{
             display: 'flex',
@@ -123,7 +128,7 @@ const Tool = (): React.ReactElement => {
               flexDirection: 'row',
               justifyContent: 'space-between',
               gap: 20,
-              paddingLeft: 20,
+              paddingLeft: 10,
             }}>
             <GroupIcon width={36} height={36} />
             <View>
@@ -146,7 +151,8 @@ const Tool = (): React.ReactElement => {
           </View>
           <RightArrow width={40} height={40} stroke={Colors.primary} />
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <Analysis />
       <PasswordGenerator />
     </View>
   );

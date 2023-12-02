@@ -371,3 +371,20 @@ export const OptionToast2: ToastOptions = {
   textStyle: {fontSize: FontSize.small},
   opacity: 1,
 };
+
+export const OptionToastRed: ToastOptions = {
+  position: Toast.positions.BOTTOM,
+  shadow: false,
+  animation: true,
+  hideOnPress: true,
+  delay: 0,
+  duration: 2000,
+  containerStyle: {
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    width: SCREEN_WIDTH - 40,
+  },
+  textColor: Colors.white,
+  backgroundColor: Colors.red,
+  textStyle: {fontSize: FontSize.large},
+};

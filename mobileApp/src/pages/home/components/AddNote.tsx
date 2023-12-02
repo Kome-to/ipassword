@@ -4,21 +4,34 @@ import {Colors, FontSize} from '@common/assets/theme/variables';
 import {ImageUrls} from '@common/constants';
 import Button from '@components/Button/Button';
 import {setLoading} from '@services/common/actions';
-import {setNotes} from '@services/user/actions';
+import {setNotes, setSelectedNote} from '@services/user/actions';
+import {selectSelectedNote} from '@services/user/selector';
 import React, {useState, useEffect} from 'react';
 import {Image, Text, TextInput, View} from 'react-native';
 import ReactNativeModal from 'react-native-modal';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
 const AddNote = ({isVisible, onClose}): React.ReactElement => {
   const [canSave, setCanSave] = useState(false);
   const [isAttach, setIsAttach] = useState(false);
   const [values, setValues] = useState({displayName: '', content: ''});
+  const selectedNote = useSelector(selectSelectedNote);
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   if(!isVisible)
-  // },[isVisible])
+  const onCloseModal = () => {
+    onClose();
+    setValues({displayName: '', content: ''});
+    dispatch(setSelectedNote(null));
+  };
+
+  useEffect(() => {
+    if (selectedNote) {
+      setValues({
+        displayName: selectedNote.displayName,
+        content: selectedNote.content,
+      });
+    }
+  }, [selectedNote]);
 
   useEffect(() => {
     setCanSave(!!(values.content && values.displayName));
@@ -37,10 +50,14 @@ const AddNote = ({isVisible, onClose}): React.ReactElement => {
     try {
       dispatch(setLoading(true));
       console.log(values);
-      const {data} = await api.user.createNote(values);
-      console.log(data);
+      if (selectedNote) {
+        await api.user.updateNote({id: selectedNote.id, ...values});
+      } else {
+        const {data} = await api.user.createNote(values);
+        console.log(data);
+      }
       await getUserData();
-      onClose();
+      onCloseModal();
     } catch (e) {
       console.log(e);
     } finally {
@@ -86,7 +103,7 @@ const AddNote = ({isVisible, onClose}): React.ReactElement => {
                 backgroundColor: 'transparent',
               }}
               onPress={() => {
-                onClose();
+                onCloseModal();
               }}>
               <Text
                 style={{

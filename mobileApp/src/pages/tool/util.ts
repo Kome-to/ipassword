@@ -30,14 +30,20 @@ export const strengthOptions: [
 ] = [
   {
     id: 0,
-    value: 'average',
+    value: 'weak',
     minDiversity: 0,
     minLength: 0,
   },
   {
     id: 1,
+    value: 'average',
+    minDiversity: 2,
+    minLength: 8,
+  },
+  {
+    id: 2,
     value: 'strong',
-    minDiversity: 4,
+    minDiversity: 3,
     minLength: 8,
   },
   {
